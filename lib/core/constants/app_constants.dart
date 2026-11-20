@@ -17,8 +17,8 @@ class AppConstants {
 
   // Simulated Account Data
   static const double defaultInitialBalance = 25000.00;
-  static const String defaultUserName = 'Aditya';
-  static const String defaultUserUpiId = 'aditya@facepay';
+  static const String defaultUserName = 'Aditya Veena Maharaj';
+  static const String defaultUserUpiId = 'aditya.maharaj@facepay';
 
   // Shared Preferences Keys
   static const String prefKeyBalance = 'facepay_wallet_balance';
