@@ -1,7 +1,8 @@
 /// Global constants for the FacePay application
 class AppConstants {
   static const String appName = 'FacePay';
-  static const String appTagline = 'Privacy-First Face Authentication for Secure Digital Payments';
+  static const String appTagline =
+      'Privacy-First Face Authentication for Secure Digital Payments';
   static const String currencySymbol = '₹';
 
   // Payment Verification Threshold Rule
@@ -13,7 +14,8 @@ class AppConstants {
   static const int challengeTimeoutSeconds = 15;
   static const double eyeClosedThreshold = 0.25;
   static const double eyeOpenThreshold = 0.70;
-  static const double headTurnAngleThreshold = 20.0; // degrees yaw for turning head left/right
+  static const double headTurnAngleThreshold =
+      20.0; // degrees yaw for turning head left/right
 
   // Simulated Account Data
   static const double defaultInitialBalance = 25000.00;
