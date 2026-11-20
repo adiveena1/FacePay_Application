@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "957166982154",
+    "project_id": "facepayapplication",
+    "storage_bucket": "facepayapplication.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:957166982154:android:6bcec43995187928f2fbf3",
+        "android_client_info": {
+          "package_name": "com.facepay.app.facepay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwp15wodCQuNIZ4hitsCdOOJt00nEWbEc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

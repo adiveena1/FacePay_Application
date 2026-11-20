@@ -4,6 +4,7 @@ import '../core/constants/app_constants.dart';
 import '../models/payment_transaction.dart';
 import '../models/merchant.dart';
 import '../models/verification_result.dart';
+import 'firebase_service.dart';
 
 class TransactionStorageService {
   static SharedPreferences? _prefs;
@@ -23,6 +24,8 @@ class TransactionStorageService {
   static Future<void> updateBalance(double newBalance) async {
     final prefs = await _getPrefs();
     await prefs.setDouble(AppConstants.prefKeyBalance, newBalance);
+    // Sync balance to Cloud Firestore
+    await FirebaseService.syncBalance('user_aditya', newBalance);
   }
 
   /// Deduct balance upon successful payment
@@ -62,6 +65,9 @@ class TransactionStorageService {
     list.insert(0, transaction);
     final rawJson = jsonEncode(list.map((e) => e.toJson()).toList());
     await prefs.setString(AppConstants.prefKeyTransactions, rawJson);
+
+    // Sync transaction to Cloud Firestore in real time
+    await FirebaseService.syncTransaction(transaction);
   }
 
   /// Clear all transaction history
