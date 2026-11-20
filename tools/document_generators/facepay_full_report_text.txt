@@ -1,0 +1,196 @@
+SHARDA UNIVERSITY
+Beyond Boundaries
+PROJECT BASED LEARNING (PBL-2) (CSP297)
+FACE PAY
+B.TECH 2nd YEAR
+SEMESTER: 4th
+SESSION: 2025-2026
+Submitted By:
+Aditya Veena (2024424251)
+Gaurav Mudgal (2024278918)
+SECTION: CSJ (G2)
+Submitted To
+Dr. Gaurav Raj
+Associate Professor, Dept. of CSE
+DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING
+SHARDA SCHOOL OF COMPUTING SCIENCE AND ENGINEERING
+SHARDA UNIVERSITY, GREATER NOIDA
+2026
+DECLARATION
+We, the undersigned students, hereby declare that the project titled “FacePay Secure” submitted in partial fulfillment of the requirements for PROJECT BASED LEARNING (PBL-2) LAB (CSP297) is our original work.
+This project has been carried out by us as a team during the B.Tech 2nd Year, Semester 4 (Session 2025-2026) under the guidance of our faculty. We confirm that this work has not been submitted previously, either in part or in full, to any other institution or for any other academic purpose.
+We further declare that each member has actively contributed to the development of this project, and we take full responsibility for the authenticity, accuracy, and originality of the work presented.
+Signatures:
+Aditya Veena (2024424251)   ___________________
+Gaurav Mudgal (2024278918)   ___________________
+Faculty In-charge Name: Dr. Gaurav Raj          Signature: ___________________
+1. Project Title
+FacePay – Mandatory On-Device Facial Verification for Secure High-Value UPI Transactions
+2. Team / Group Formation
+3. Technologies to be used
+Software Platform
+a) Front-end
+Flutter – used to build the cross-platform mobile app interface for the secure UPI transaction flow, QR scanning, facial verification, and user screens.
+Dart – used as the programming language for Flutter app development and application logic.
+b) AI / Authentication
+Google ML Kit – used for real-time facial detection and liveness verification such as blink and head-pose checking.
+On-device biometric processing – used to preserve privacy and avoid sending face data to external servers.
+c) Payment / Integration
+Razorpay Sandbox – used to simulate UPI-style payment flow in a test environment without live NPCI integration.
+Hardware Platform
+RAM: Minimum 8 GB for development and testing
+Processor: Intel i5 or equivalent
+Storage: Minimum 256 GB
+Device Requirement: Android smartphone with camera for face verification and QR scanning
+Operating System: Windows / Linux / macOS for development, Android for testing
+Editor: Visual Studio Code or Android Studio
+These fit the app's scope because the project is a Flutter mobile app using camera-based face verification, QR-based transactions, and on-device processing.
+4. Tools
+Flutter SDK – used for app development and UI implementation.
+Dart – used to implement business logic, validation, and app workflow.
+Google ML Kit – used for face detection and liveness verification.
+Razorpay Sandbox – used for simulated payment integration.
+Camera package / phone camera – used for QR scanning and live facial authentication.
+Shared Preferences / Local Storage – used to store badges, streaks, privacy logs, and local user activity.
+5. Problem Statement
+India's UPI ecosystem continues to process a very large share of the country's retail digital payments, and fraud has grown alongside it. Data presented by the Union Minister of State for Finance in the Lok Sabha shows UPI-related fraud rising from Rs. 573 crore in FY23 to Rs. 981 crore in FY25, spanning 12.64 lakh reported incidents in FY25 alone. Current authentication methods such as PIN and OTP are vulnerable to phishing, SIM-swap, social engineering, and stolen credentials, especially for higher-value payments. This project addresses the need for mandatory facial verification for UPI transactions above Rs. 500, using liveness detection and secure on-device mobile processing to reduce fraud and improve trust in digital payments.
+6. Literature Survey
+Author names for the five papers above are not listed here as they could not be confirmed from the available material; they should be added from the original research PDFs before final submission.
+7. Project Description
+The proposed project focuses on developing a mobile payment security app that enforces facial verification before completing higher-value UPI transactions. The app is designed for college students, small merchants, and educational institutions, where fraud prevention, payment trust, and ease of use are important.
+Scope of Work
+QR-based payment flow
+Facial verification (liveness check) before payment approval
+Liveness detection using blink and pose verification
+Payment simulation through Razorpay sandbox
+Local gamification such as streaks and badges
+Hindi / English user interface
+Privacy-first on-device processing
+Out of Scope
+Live NPCI connectivity
+Production UPI deployment
+Backend server infrastructure
+Cross-border payments
+Non-UPI payment systems
+Identity-matching face recognition against a stored user profile — the current prototype verifies that a live, single face is present (liveness only); embedding-based identity matching is listed under Future Scope (Section 11) and is not part of this build
+Structure of the Project
+Input Layer: QR scan, payment amount, user identity request
+Processing Layer: Face detection, liveness verification, amount threshold check, transaction validation
+Application Layer: Payment status, badge system, logs, and UI screens
+Modules (Brief)
+QR Scan Module: Scans merchant QR for payment initiation
+Amount Verification Module: Checks whether facial authentication is mandatory
+Face Authentication Module: Captures live face and verifies liveness
+Payment Module: Executes sandbox payment flow
+Gamification Module: Awards streaks and badges
+Transaction Log Module: Stores activity locally
+Settings / Language Module: Handles Hindi-English UI and privacy preferences
+Customer Usage Flow
+1. User opens the FacePay app
+2. Scan merchant QR code
+3. Enter / confirm payment amount
+4. Is amount > Rs. 500?  →  No: proceed with normal UPI payment processing
+Yes: face scan required
+5. Liveness detection (blink + head-pose check)
+6. Liveness passed  →  fraud check  →  Razorpay sandbox payment  →  success
+Liveness failed  →  limited retry, then transaction cancelled
+This flow is consistent with the FacePay synopsis, which defines a Flutter app with QR-based UPI transactions requiring mandatory liveness-verified face authentication above Rs. 500. The identity-matching step shown in earlier drafts of the flow has been removed here to keep the description consistent with the current prototype's scope (liveness only); it remains a planned future enhancement.
+8. Project Modules: Design/Algorithm
+1. Input Data
+Obtain transaction amount
+Obtain merchant QR / UPI request
+Access live user camera feed
+Define threshold amount T = Rs. 500
+2. Preprocessing
+Validate QR/payment data
+Initialize camera and face frame capture
+Prepare face landmarks for liveness detection
+3. Transaction Threshold Check
+If payment amount > T, facial authentication becomes mandatory
+Else normal sandbox payment can proceed
+4. Face Detection
+Detect human face in real time
+Ensure a single face is visible in frame
+5. Liveness Verification
+Check blink detection
+Check pose or movement verification
+Reject static photo spoof attempts
+6. Decision Logic
+If liveness success = true, allow payment continuation
+Else retry up to a limited number of attempts, then cancel transaction
+7. Payment Execution
+Trigger Razorpay sandbox payment flow
+Record transaction status locally
+8. Reward / Secure Habit Logic
+Update streak count
+Unlock badge / secure payment milestone
+Save achievement in local storage
+9. Output
+Payment success / failure message
+Updated streak / badge
+Local transaction record
+Fraud-safe verification result
+9. Implementation Methodology
+The project follows a modular mobile-app development approach, combining secure payment simulation with on-device face verification.
+1. System Development Process
+The workflow is: QR Scan → Amount Check → Face Detection → Liveness Verification → Payment Simulation → Success/Failure Output → Badge/Streak Update
+2. Use Case Overview
+Scan merchant QR
+Enter or confirm amount
+Trigger mandatory liveness check for transactions above Rs. 500
+Approve secure transaction
+Maintain local record and reward secure behaviour
+3. Testing Methodology
+The system can be tested using:
+Valid user transactions
+Invalid face attempts
+Spoof attempts using printed or static images
+Low light / partial face cases
+Multiple retry conditions
+Transactions above and below Rs. 500
+4. Defect Log & Maintenance
+Camera detection issues are recorded during testing
+False rejection / false acceptance cases are observed
+UI flow issues are identified and corrected
+Liveness logic and transaction handling are refined iteratively
+10. Result & Conclusion
+FacePay Secure proposes a practical solution for improving UPI payment security by making facial liveness verification mandatory for higher-value transactions instead of keeping it optional. The key strength of the project is its combination of on-device liveness verification, payment simulation, and gamified secure-habit formation in a single mobile app. Overall, the system is privacy-focused, student-relevant, scalable for campus use, and suitable as a strong PBL prototype.
+11. Future Scope and further enhancement of the Project
+The project can later be improved by integrating:
+Live UPI / NPCI-compliant production flow
+Stronger anti-spoofing techniques
+Face embedding-based identity matching, to confirm the payer's identity and not just liveness
+Institution payment systems such as canteen, hostel, and fee payments
+Multi-factor biometric support like face + fingerprint
+Cloud analytics dashboard for fraud monitoring
+The current version is only a sandbox-based pilot and is aimed at a campus-scale deployment rather than a production rollout.
+12. Advantages of this Project
+Improved Payment Security – adds stronger identity-adjacent verification for high-value transactions.
+Fraud Reduction – targets fraud caused by phishing, stolen credentials, and OTP misuse.
+Privacy-Focused – uses on-device face processing rather than cloud dependency.
+Student-Friendly Use Case – suitable for campus canteens, hostel payments, and institutional collections.
+Behavioural Gamification – encourages secure habits using streaks and badges.
+Scalable Prototype – can be expanded from campus pilot to broader fintech use.
+13. Outcome
+The FacePay Secure project demonstrates a working concept for reducing fraud in UPI-based payments through mandatory liveness-verified facial checks for transactions above Rs. 500. The prototype combines Flutter-based mobile development, liveness detection, QR-based transaction flow, and gamification features into a single secure payment application. This outcome shows the project's academic relevance, practical value for campus payment systems, and potential for future enhancement into a larger fintech security solution.
+14. References
+[1] “Advancing Secure Facial Recognition Payment Authentication,” International Journal for Multidisciplinary Research, 2025.
+[2] “Face Recognition UPI Transaction System,” International Journal of Scientific Research in Engineering and Management, Aug. 2025.
+[3] “Exploring Security Enhancements in UPI Payments,” All Subject Journal, Sep. 2025.
+[4] “UPI Fraud Detection Using Facial Recognition,” Journal of Emerging Technologies and Innovative Research, 2025.
+[5] “Blockchain Based Secure Payment Using Face Recognition,” IRJMETS, Jun. 2025.
+[6] Lok Sabha reply by Union Minister of State for Finance, Pankaj Chaudhary, on UPI-related fraud statistics (FY23–FY25), as reported by IANS, Dec. 2025.
+[7] Google Developers, “ML Kit Face Detection API,” Google LLC. [Online]. Available: https://developers.google.com/ml-kit/vision/face-detection
+
+--- Table 0 ---
+S. No | Student Name | Roll Number | System ID | Role
+1 | Aditya Veena | 2401010053 | 2024424251 | Frontend / UI-UX Developer
+2 | Gaurav Mudgal | 2401010247 | 2024278918 | Technical Lead / Backend Developer
+
+--- Table 1 ---
+S.No | Journal & Year | Title / Work | Key Findings | Limitations
+1 | IJFMR, 2025 | Advancing Secure and Trustworthy Facial Recognition Payment Authentication in India | CNN / Vision Transformer based UPI face authentication; ~96% accuracy, supports on-device processing | No gamification; no deployed prototype
+2 | IJSREM, Aug. 2025 | Face Recognition UPI Transaction System | MediaPipe based mobile-web prototype; ~94% accuracy across Indian demographics | Face authentication is optional, not enforced
+3 | All Subject Journal, Sep. 2025 | Exploring Security Enhancements in UPI Payments | Survey-based; 88% user trust in facial biometrics, fraud reduction with MFA | No working prototype delivered
+4 | JETIR, 2025 | UPI Fraud Detection Using Facial Recognition & Proxy Detection | Face + proxy detection ML; about 85% fraud reduction reported | Complex server-side transmission architecture
+5 | IRJMETS, Jun. 2025 | Blockchain Based Secure Payment System Using Face Recognition | Face recognition + blockchain privacy layer; strong privacy guarantees | Heavy infrastructure requirement, impractical at small scale

@@ -1,0 +1,192 @@
+Review PDF pages: 14
+
+=== Page 1 ===
+PBL-3 · CSP-391 · Semester 5 · Rubric #R2: Evaluation-2
+FacePay
+Mandatory On-Device Facial Verification for Secure High-Value UPI Transactions
+Aditya Veena · 2024424251
+Gaurav Mudgal · 2024278918
+Sharda School of Computing Science and Engineering
+Project Implementation Review · 23 October 2026
+=== Page 2 ===
+What we'll cover
+01
+Problem & objectives
+02
+Literature survey
+03
+System architecture
+04
+Module design & workflow
+05
+Technology stack
+06
+Implementation status
+07
+Testing & validation
+08
+Results & future scope
+FacePay · 02/13
+=== Page 3 ===
+The Problem
+UPI authentication still relies only on a PIN or OTP — both knowledge-based  
+factors that can be phished, SIM-swapped, or socially engineered.
+Higher-value transactions carry the largest losses
+Facial verification in existing research is optional, not enforced
+No system binds liveness-verified identity to the payment itself
+UPI fraud · Lok Sabha data
+₹981 Cr
+in FY25, across 12.64 lakh incidents — up  
+from ₹573 Cr in FY23
+FacePay · 03/13 — Source: Lok Sabha reply, Union Minister of State for Finance (IANS, Dec 2025)
+=== Page 4 ===
+Objectives
+Flutter-based mobile payment app with QR-based  transaction initiation Mandatory facial liveness verification for transactions  above ₹500
+Blink + head-pose liveness checks to reject printed-photo and  replay spoofing 100% on-device biometric processing — no face data ever leaves  the phone
+Simulated end-to-end payment lifecycle via the  Razorpay sandbox Gamified streaks & badges that reinforce secure payment habits
+Bilingual Hindi-English interface suited to campus-scale deployment
+FacePay · 04/13
+=== Page 5 ===
+Literature Survey
+Source Year Approach Key Finding
+IJFMR 2025 CNN / ViT-based UPI face authentication ~96% accuracy; proves on-device feasibility
+IJSREM 2025 MediaPipe mobile-web prototype ~94% accuracy; verification left optional
+All Subject Journal 2025 User survey on biometric adoption 88% user trust; no prototype delivered
+JETIR 2025 Face recognition + proxy-detection ML ~85% fraud reduction reported
+IRJMETS 2025 Face recognition + blockchain layer Strong privacy; heavy infrastructure cost
+The gap: verification is consistently optional, not enforced — FacePay makes it mandatory above ₹500.
+FacePay · 05/13
+=== Page 6 ===
+System Architecture
+Input Layer
+Capture
+QR scan · payment amount · live  
+camera feed
+Processing Layer
+Verify
+Face detection · liveness check ·  
+threshold check · validation
+Application Layer
+Deliver
+Payment status · badges & streaks · logs  
+· UI screens
+FacePay · 06/13
+=== Page 7 ===
+Module Breakdown
+
+QR Scan
+Scans merchant QR to start a payment
+
+Amount Check
+Decides if facial auth is mandatory
+
+Face Auth
+Captures live face, verifies liveness
+
+Payment
+Executes the Razorpay sandbox flow
+
+Gamification
+Awards streaks and secure-
+habit badges
+
+Transaction Log
+Stores activity locally on-device
+
+Settings
+Hindi-English UI and privacy prefs
+FacePay · 07/13
+=== Page 8 ===
+How It Works
+Scan → Threshold Check → Liveness → Decision → Payment → Reward
+01
+Scan & Amount Check
+QR scanned; face check triggers only above ₹500
+02
+Face Detection
+Camera confirms a single live face is present
+03
+Liveness Verification
+Blink + head-pose checks block spoof attempts
+04
+Decision Logic
+Pass continues; fail allows limited retries
+05
+Payment Execution
+Razorpay sandbox processes the transaction
+06
+Reward Update
+Streak incremented, badge unlocked, logged
+FacePay · 08/13
+=== Page 9 ===
+Technology Stack
+Front-end
+Flutter for the cross-platform app shell · Dart for business logic  
+and app workflow
+AI / Authentication
+Google ML Kit for real-time face & liveness detection · fully on-
+device, nothing sent to a server
+Payment Integration
+Razorpay Sandbox for a realistic, simulated UPI-style  
+payment flow
+Dev & Hardware
+Android Studio / VS Code · Android device with camera · 8 GB  
+RAM, i5-class dev machine
+FacePay · 09/13
+=== Page 10 ===
+Implementation Status
+Design (PBL-2) mapped against what is built — synchronization check
+Module Design Spec (PBL-2) Status
+QR Scan Scan merchant QR to start payment [ update ]
+Amount Check Mandatory face check above ₹500 [ update ]
+Face Auth Live face + blink/pose liveness [ update ]
+Payment Razorpay sandbox transaction flow [ update ]
+Gamification Streaks & badges on secure payments [ update ]
+Transaction Log Local on-device activity log [ update ]
+Settings Hindi-English UI, privacy prefs [ update ]
+FacePay · 10/13 — Edit the Status column with Done / In Progress / Pending before presenting
+=== Page 11 ===
+Rubric #R2 Alignment
+Project Implementation Review — every graded component, mapped to where it's shown
+Component (Max) PO/PSO Where it's shown
+Coding of all modules & debugging (5) PO3 Module Breakdown · Defect Log in Testing
+Integration of all Modules (5) PO1 How It Works — end-to-end 6-step flow
+Overall Project Implementation (5) PO5 Implementation Status table + live demo
+Synchronization of Design & Implementation (5) PO3 Implementation Status — PBL-2 design vs. build
+Communication (Presentation) (5) PO10 This presentation, slides 1–14
+Documentation Report (5) PO12 FacePay project report (submitted separately)
+Research Paper in Communication (5) PSO1,2,3 Results & What's Next — target venue
+FacePay · 12/14 — Total: 35 marks
+=== Page 12 ===
+Testing & Validation
+Test Scenarios
+Valid, legitimate user transactions
+Invalid / unrecognized face attempts
+Spoof attempts using printed or static images
+Low-light and partial-face conditions
+Multiple retry conditions
+Transactions both above and below ₹500
+Defect Log & Maintenance
+Camera detection issues recorded during testing
+False rejection / false acceptance cases tracked
+UI flow issues identified and corrected
+Liveness logic refined iteratively each cycle
+FacePay · 12/14
+=== Page 13 ===
+Results & What's Next
+Where we are
+Liveness-verified facial check enforced above ₹500, not optional
+Fully on-device processing — privacy-first by design
+End-to-end sandbox payment flow with local gamification
+Scalable to campus use: canteen, hostel, fee payments
+Future Scope
+Live, NPCI-compliant production payment flow
+Face-embedding identity matching, beyond liveness alone
+Multi-factor biometrics: face + fingerprint
+Cloud analytics dashboard for fraud monitoring
+Target publication:  [ conference / journal — to finalize with Dr. Gaurav Raj ]
+FacePay · 12/13
+=== Page 14 ===
+Thank You
+Questions & Discussion
+Aditya Veena · 2024424251 Gaurav Mudgal · 2024278918

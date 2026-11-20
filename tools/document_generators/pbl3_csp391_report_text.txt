@@ -1,0 +1,75 @@
+a
+PROJECT BASED LEARNING (PBL-3) LAB (CSP391)
+Project Title
+B.TECH 3rd YEAR 
+SEMESTER: 5th 
+SESSION: 2025-2026
+Submitted By:
+Student’s Full name (Student ID)
+SECTION: 
+Submitted To
+Dr. X
+Associate Professor
+DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING
+SHARDA SCHOOL OF ENGINEERING & TECHNOLOGY
+SHARDA UNIVERSITY, GREATER NOIDA
+Project Title
+<Guidelines: Title should reflect the objectives of the study. It must be written after the whole synopsis has been written so that it is a true representative of the plan……>
+Font: Times New Roman; Font Size: 12, Color Black
+Team / Group Formation:
+<Guidelines: Team should not exceed 3 members >
+Possible Roles are: Developer, Tester, and Designer
+Font: Times New Roman; Font Size: 12, Color Black
+Technologies to be used
+Software Platform 
+Front-end
+Hardware Platform
+RAM, Hard Disk, OS, Editor, Browser etc.
+Tools
+<Guidelines: Mention if any tool is planned to be used in any phases of the life cycle of the project and purpose of using the too, Mention tool Name, Vendor Name, version no. etc >
+Font: Times New Roman; Font Size: 12, Color Black
+Problem Statement
+<Guidelines: This section should contain brief background of the selected topic, why this topic is selected. What problem this will solve etc.>
+Font: Times New Roman; Font Size: 12, Color Black
+Literature Survey
+<Guidelines: This section should discuss published work on the selected topic. Summarize the literature in table as it enables you to sort your findings according to a variety of factors (e.g. sort by date, and then by author; sort by methodology and then date)>
+Font: Times New Roman; Font Size: 12, Color Black
+Project Description
+<Guidelines: Describe the Scope of Work, Structure of the Project, it’s modules in brief. Give a high level Context Diagram to describe the project >
+Font: Times New Roman; Font Size: 12, Color Black
+Project Modules:  Design/Algorithm
+<Guidelines: Describe each module, which are part of the project>
+Implementation Methodology
+<Guidelines: The process of the whole software system proposed, to be developed, should be mentioned in brief. This may be supported by DFD's / ER Diagram / Class Diagram / Data Models/ Use Case Diagrams/ Flowcharts etc. to explain the flow of the information. Mention how testing of the project will be done and maintenance of the Defect Log>
+Result & Conclusion
+<Guidelines: The write-up must end with the concluding remarks-briefly describing innovations in the approach for implementing the Project, main achievements and also any other important feature that makes the system stands out from the rest. >
+Future Scope and further enhancement of the Project
+<Guidelines: Explain how this project can be enhanced in terms of functions, usage etc.>
+Font: Times New Roman; Font Size: 12, Color Black
+Advantages of this Project
+<Guidelines: Mention the advantage from this project, the audience/ users who will get benefitted >
+Font: Times New Roman; Font Size: 12, Color Black
+Outcome
+<Guidelines: The group or Team has to showcase an any of the following outcomes
+Project to Product
+Project to Hackathon Competitions, Patents, etc
+Research Oriented- Publish the work research papers in SCI indexed Journals.
+Research Oriented- Publish the work research papers in Scopus indexed Journals.
+Research Oriented- Publish the work research papers in UGC CARE List.  
+Patents Publication
+>
+References
+<Guidelines: Give references, Example: Books referred, website URL, any other >
+Signature
+
+--- Table 0 ---
+S. No | Student Name | Roll Number | System ID | Role
+1 |  |  |  | 
+2 |  |  |  | 
+3 |  |  |  | 
+
+--- Table 1 ---
+Student Name | Student Sign | Faculty Name | Faculty Sign
+ |  |  | 
+ |  |  | 
+ |  |  | 
