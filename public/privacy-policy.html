@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — FacePay</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #334155;
+      background-color: #F8FAFC;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      background: linear-gradient(135deg, #0284C7 0%, #1E293B 100%);
+      color: white;
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      background: #FFFFFF;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      margin-top: -24px;
+      margin-bottom: 48px;
+    }
+    h1 { margin: 0 0 8px 0; font-size: 32px; }
+    h2 { color: #0F172A; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px; margin-top: 32px; font-size: 20px; }
+    p, li { font-size: 15px; color: #475569; }
+    ul { padding-left: 20px; }
+    .badge {
+      display: inline-block;
+      background: #E0F2FE;
+      color: #0284C7;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 13px;
+      color: #94A3B8;
+      padding-bottom: 32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="badge">Privacy First Architecture</span>
+    <h1>FacePay Privacy Policy</h1>
+    <p>Last updated: November 24, 2026</p>
+  </div>
+
+  <div class="container">
+    <h2>1. Overview</h2>
+    <p><strong>FacePay</strong> is a secure financial prototype application designed and developed by <strong>Aditya Veena Maharaj</strong> and <strong>Gaurav Mudgal</strong> under the academic supervision of <strong>Dr. Gaurav Raj</strong> at <strong>Sharda University</strong> (PBL-3 Capstone Course CSP-391). Our core mission is providing uncompromising biometric security for digital UPI transactions while upholding the highest standards of personal privacy.</p>
+
+    <h2>2. Camera Access & Zero Cloud Biometrics</h2>
+    <p>FacePay requests access to your device's camera strictly for on-device facial liveness verification during transactions exceeding ₹500:</p>
+    <ul>
+      <li><strong>100% On-Device Processing:</strong> All facial analysis, eye-blink detection, and Euler-angle head-turn tracking are executed locally on your device via <em>Google ML Kit Face Detection</em>.</li>
+      <li><strong>Zero Transmission:</strong> No video recordings, photographic frames, facial coordinate points, or biometric hashes are ever transmitted to any external server, cloud infrastructure, or third party.</li>
+      <li><strong>Immediate Memory Purge:</strong> Camera frames are processed strictly in volatile device RAM and are purged immediately when the verification window concludes.</li>
+    </ul>
+
+    <h2>3. Transaction & Wallet Data</h2>
+    <p>FacePay utilizes demonstration financial data for user testing and academic evaluation:</p>
+    <ul>
+      <li><strong>Local Storage:</strong> Transactions and demo wallet balances are cached on-device using Android <code>SharedPreferences</code>.</li>
+      <li><strong>Cloud Synchronization:</strong> When connected, transaction records (timestamp, merchant identifier, amount, and liveness verification status) sync to Google Cloud Firestore (Firebase) via encrypted SSL/TLS channels for cloud backup and review.</li>
+      <li><strong>No Banking Credentials:</strong> FacePay does not solicit or store bank account numbers, debit card PINs, CVVs, or real UPI banking credentials.</li>
+    </ul>
+
+    <h2>4. Third-Party Libraries & Security</h2>
+    <p>The application employs standard, industry-vetted SDKs:</p>
+    <ul>
+      <li><strong>Google ML Kit:</strong> On-device computer vision runtime provided by Google LLC.</li>
+      <li><strong>Google Firebase Core & Cloud Firestore:</strong> Encrypted cloud database and crash reporting infrastructure provided by Google LLC.</li>
+    </ul>
+
+    <h2>5. User Control & Data Deletion</h2>
+    <p>Users have complete sovereignty over their data. You can delete all local transaction history and reset your demonstration wallet at any time through the in-app <em>Settings &rarr; Clear History / Reset Demo Data</em> button, or by uninstalling the application.</p>
+
+    <h2>6. Contact Us</h2>
+    <p>If you have any questions or feedback regarding this Privacy Policy, please contact the development team at:</p>
+    <p><strong>Email:</strong> <a href="mailto:adityaveena1@gmail.com">adityaveena1@gmail.com</a><br>
+    <strong>Department:</strong> Department of Computer Science & Engineering, Sharda University, Greater Noida, India.</p>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 FacePay &bull; Aditya Veena Maharaj & Gaurav Mudgal &bull; Dr. Gaurav Raj
+  </div>
+</body>
+</html>
