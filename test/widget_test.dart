@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:facepay/main.dart';
 import 'package:facepay/core/constants/app_constants.dart';
+import 'package:facepay/core/utils/currency_formatter.dart';
 import 'package:facepay/services/payment_validation_service.dart';
 import 'package:facepay/services/qr_scanner_service.dart';
 import 'package:facepay/services/payment_service.dart';
@@ -169,6 +170,89 @@ void main() {
       expect(result.isSuccess, isFalse);
       expect(result.transaction.status, PaymentStatus.failed);
       expect(result.message, contains('Insufficient balance'));
+    });
+  });
+
+  group('Monetary Precision & Minor Units (Paise Conversion)', () {
+    test('Integer minor unit conversion prevents IEEE-754 precision errors', () {
+      expect(CurrencyFormatter.toMinorUnits(500.00), equals(50000));
+      expect(CurrencyFormatter.toMinorUnits(500.01), equals(50001));
+      expect(CurrencyFormatter.toMinorUnits(0.99), equals(99));
+      expect(CurrencyFormatter.fromMinorUnits(50000), equals(500.00));
+      expect(CurrencyFormatter.fromMinorUnits(50001), equals(500.01));
+    });
+
+    test('Threshold boundary evaluation using minor units', () {
+      expect(PaymentValidationService.requiresFaceVerification(500.00), isFalse);
+      expect(PaymentValidationService.requiresFaceVerification(500.01), isTrue);
+      expect(PaymentValidationService.requiresFaceVerification(999.00), isTrue);
+    });
+
+    test('Indian currency formatting handles minor units and standard currency symbols', () {
+      final formatted = CurrencyFormatter.format(1250.50);
+      expect(formatted, contains('1,250.50'));
+    });
+  });
+
+  group('Fintech Recipient & Currency Security Integrity', () {
+    test('Validates recipient Virtual Payment Address (VPA) correctly', () {
+      expect(PaymentValidationService.validateRecipientVpa('merchant@icici').isValid, isTrue);
+      expect(PaymentValidationService.validateRecipientVpa('student.council@oksbi').isValid, isTrue);
+      expect(PaymentValidationService.validateRecipientVpa('facepay_store@upi').isValid, isTrue);
+      expect(PaymentValidationService.validateRecipientVpa('invalid-vpa-without-at').isValid, isFalse);
+      expect(PaymentValidationService.validateRecipientVpa('').isValid, isFalse);
+      expect(PaymentValidationService.validateRecipientVpa('user@').isValid, isFalse);
+    });
+
+    test('Validates currency conformity to INR', () {
+      expect(PaymentValidationService.validateCurrency('INR'), isTrue);
+      expect(PaymentValidationService.validateCurrency('inr'), isTrue);
+      expect(PaymentValidationService.validateCurrency('USD'), isFalse);
+      expect(PaymentValidationService.validateCurrency('EUR'), isFalse);
+    });
+
+    test('Generates deterministic idempotency keys', () {
+      final key1 = PaymentValidationService.generateIdempotencyKey(
+        userId: 'USER-1',
+        merchantVpa: 'STORE-1@upi',
+        amount: 500.0,
+        nonce: 'nonce-123',
+      );
+      final key2 = PaymentValidationService.generateIdempotencyKey(
+        userId: 'USER-1',
+        merchantVpa: 'STORE-1@upi',
+        amount: 500.0,
+        nonce: 'nonce-123',
+      );
+      final key3 = PaymentValidationService.generateIdempotencyKey(
+        userId: 'USER-1',
+        merchantVpa: 'STORE-2@upi',
+        amount: 500.0,
+        nonce: 'nonce-123',
+      );
+
+      expect(key1, isNotEmpty);
+      expect(key1, equals(key2));
+      expect(key1, isNot(equals(key3)));
+    });
+
+    test('Blocks transaction when verification times out', () async {
+      final timeoutResult = VerificationResult(
+        status: VerificationStatus.timeout,
+        message: 'Face verification challenge timed out (15s limit exceeded)',
+        attemptsUsed: 1,
+        timestamp: DateTime.now(),
+      );
+
+      final result = await PaymentService.processPayment(
+        merchant: const Merchant(id: 'M-1', name: 'Timeout Test', upiId: 'timeout@upi'),
+        amount: 800.00,
+        verificationResult: timeoutResult,
+      );
+
+      expect(result.isSuccess, isFalse);
+      expect(result.transaction.status, PaymentStatus.verificationFailed);
+      expect(result.message, contains('Security Verification Failed'));
     });
   });
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/merchant.dart';
 import '../models/payment_transaction.dart';
 import '../models/verification_result.dart';
 import '../services/qr_scanner_service.dart';
@@ -11,12 +12,18 @@ import 'face_verification_screen.dart';
 import 'payment_result_screen.dart';
 
 class PaymentConfirmationScreen extends StatefulWidget {
-  final QRPaymentData qrPaymentData;
+  final QRPaymentData? qrPaymentData;
+  final Merchant? merchant;
+  final double? initialAmount;
+  final String? note;
 
   const PaymentConfirmationScreen({
     super.key,
-    required this.qrPaymentData,
-  });
+    this.qrPaymentData,
+    this.merchant,
+    this.initialAmount,
+    this.note,
+  }) : assert(qrPaymentData != null || merchant != null);
 
   @override
   State<PaymentConfirmationScreen> createState() => _PaymentConfirmationScreenState();
@@ -27,11 +34,18 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
   bool _isProcessing = false;
   String? _amountError;
 
+  Merchant get _activeMerchant =>
+      widget.merchant ?? widget.qrPaymentData!.merchant;
+
+  String? get _activeNote =>
+      widget.note ?? widget.qrPaymentData?.note;
+
   @override
   void initState() {
     super.initState();
-    if (widget.qrPaymentData.amount != null) {
-      _amountController.text = widget.qrPaymentData.amount!.toStringAsFixed(2);
+    final initAmt = widget.initialAmount ?? widget.qrPaymentData?.amount;
+    if (initAmt != null) {
+      _amountController.text = initAmt.toStringAsFixed(2);
     }
   }
 
@@ -47,6 +61,8 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
   }
 
   Future<void> _handleAuthorize() async {
+    if (_isProcessing) return;
+
     final text = _amountController.text.trim();
     final validation = PaymentValidationService.validateAmount(text);
 
@@ -59,6 +75,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
 
     setState(() {
       _amountError = null;
+      _isProcessing = true;
     });
 
     final amount = validation.parsedAmount!;
@@ -66,14 +83,14 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
 
     VerificationResult? verificationResult;
 
-    // Step: Face Verification Check (Threshold > 500)
+    // Step: Face Verification Check (Threshold > ₹500)
     if (requiresVerification) {
       // Launch guided on-device face verification
       final dynamic result = await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => FaceVerificationScreen(
             amount: amount,
-            merchantName: widget.qrPaymentData.merchant.name,
+            merchantName: _activeMerchant.name,
           ),
         ),
       );
@@ -92,21 +109,21 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
       // If liveness verification did not pass, abort transaction
       if (verificationResult.status != VerificationStatus.passed) {
         if (!mounted) return;
-        final failMsg = verificationResult.message;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => PaymentResultScreen(
               transaction: PaymentTransaction(
                 id: 'FP-AUTH-FAIL',
-                merchant: widget.qrPaymentData.merchant,
+                merchant: _activeMerchant,
                 amount: amount,
                 timestamp: DateTime.now(),
                 status: PaymentStatus.verificationFailed,
                 verificationRequired: true,
                 verificationResult: verificationResult,
-                failureReason: failMsg,
+                failureReason: verificationResult?.message ?? 'Facial liveness verification was not completed.',
+                isDemo: true,
+                transactionNote: _activeNote,
               ),
-              message: failMsg,
             ),
           ),
         );
@@ -114,38 +131,38 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
       }
     }
 
-    // Step: Process Payment
-    setState(() {
-      _isProcessing = true;
-    });
+    // Step: Payment Authorization & Processing
+    try {
+      final payResult = await PaymentService.processPayment(
+        merchant: _activeMerchant,
+        amount: amount,
+        verificationResult: verificationResult,
+        transactionNote: _activeNote,
+      );
 
-    final processResult = await PaymentService.processPayment(
-      merchant: widget.qrPaymentData.merchant,
-      amount: amount,
-      verificationResult: verificationResult,
-    );
+      if (!mounted) return;
 
-    if (!mounted) return;
-
-    setState(() {
-      _isProcessing = false;
-    });
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => PaymentResultScreen(
-          transaction: processResult.transaction,
-          message: processResult.message,
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => PaymentResultScreen(
+            transaction: payResult.transaction,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Payment error: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final merchant = widget.qrPaymentData.merchant;
-    final currentAmount = _getCurrentAmount() ?? 0.0;
-    final requiresFaceCheck = PaymentValidationService.requiresFaceVerification(currentAmount);
+    final currentAmount = _getCurrentAmount();
+    final requiresFaceCheck = currentAmount != null &&
+        PaymentValidationService.requiresFaceVerification(currentAmount);
 
     return Scaffold(
       appBar: AppBar(
@@ -165,12 +182,12 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: AppTheme.primary.withAlpha(25),
+                        backgroundColor: AppTheme.primary.withValues(alpha: 0.12),
                         child: const Icon(Icons.storefront_rounded, color: AppTheme.primary, size: 32),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        merchant.name,
+                        _activeMerchant.name,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -180,13 +197,13 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        merchant.upiId,
+                        _activeMerchant.upiId,
                         style: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.textSecondary,
                         ),
                       ),
-                      if (widget.qrPaymentData.note != null) ...[
+                      if (_activeNote != null) ...[
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -195,7 +212,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            widget.qrPaymentData.note!,
+                            _activeNote!,
                             style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                           ),
                         ),
@@ -254,25 +271,24 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Security Rule Notification Card
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
+              // Dynamic Security Requirement Indicator (Rule A)
+              Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: requiresFaceCheck
-                      ? AppTheme.primary.withAlpha(15)
-                      : AppTheme.accent.withAlpha(15),
+                      ? AppTheme.primary.withValues(alpha: 0.08)
+                      : AppTheme.accent.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: requiresFaceCheck
-                        ? AppTheme.primary.withAlpha(80)
-                        : AppTheme.accent.withAlpha(80),
+                        ? AppTheme.primary.withValues(alpha: 0.3)
+                        : AppTheme.accent.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      requiresFaceCheck ? Icons.face_retouching_natural : Icons.lock_outline_rounded,
+                      requiresFaceCheck ? Icons.face_retouching_natural : Icons.flash_on_rounded,
                       color: requiresFaceCheck ? AppTheme.primary : AppTheme.accent,
                       size: 28,
                     ),
@@ -283,8 +299,8 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                         children: [
                           Text(
                             requiresFaceCheck
-                                ? 'Face Liveness Verification Required'
-                                : 'Standard Fast Checkout',
+                                ? 'Security Level: Facial Liveness Required'
+                                : 'Security Level: Fast Micro-Checkout',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -294,12 +310,9 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                           const SizedBox(height: 4),
                           Text(
                             requiresFaceCheck
-                                ? 'Amount is above ₹500.00. You will be asked to perform a blink and head-pose check before authorization.'
-                                : 'Amount is ₹500.00 or below. Standard checkout authorization applies.',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textSecondary,
-                            ),
+                                ? 'Amount exceeds ₹500.00. High-value payment requires on-device eye-blink & head-turn verification.'
+                                : 'Amount is ₹500.00 or less. Payment will be authorized immediately without camera prompt.',
+                            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                           ),
                         ],
                       ),
@@ -309,19 +322,27 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Action Buttons
+              // Pay / Confirm Button
               AppButton(
-                label: requiresFaceCheck ? 'Verify Face & Pay' : 'Confirm Payment',
-                icon: requiresFaceCheck ? Icons.face_rounded : Icons.lock_open_rounded,
+                label: currentAmount != null && requiresFaceCheck
+                    ? 'Verify Face & Pay'
+                    : 'Pay Now',
+                icon: currentAmount != null && requiresFaceCheck
+                    ? Icons.camera_alt_outlined
+                    : Icons.lock_outline,
                 isLoading: _isProcessing,
                 onPressed: _handleAuthorize,
               ),
               const SizedBox(height: 12),
-              AppButton(
-                label: 'Cancel',
-                isOutlined: true,
-                color: AppTheme.textSecondary,
-                onPressed: _isProcessing ? null : () => Navigator.pop(context),
+
+              // Cancel Button
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: _isProcessing ? null : () => Navigator.of(context).pop(),
+                child: const Text('Cancel Transaction'),
               ),
             ],
           ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/user_rewards.dart';
 import '../core/theme/app_theme.dart';
 
+typedef RewardBadgeCard = RewardBadgeWidget;
+
 class RewardBadgeWidget extends StatelessWidget {
   final BadgeItem badge;
 

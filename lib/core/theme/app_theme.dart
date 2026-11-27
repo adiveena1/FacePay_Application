@@ -8,6 +8,8 @@ class AppTheme {
   static const Color accent = Color(0xFF00C853);       // Emerald Security Green
   static const Color accentAmber = Color(0xFFFFAB00);  // Amber Alert
   static const Color danger = Color(0xFFD50000);       // Security Red
+  static const Color error = danger;
+  static const Color darkHeader = Color(0xFF0F172A);
   
   // Surface and Backgrounds
   static const Color background = Color(0xFFF7F9FC);

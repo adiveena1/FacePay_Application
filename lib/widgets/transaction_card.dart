@@ -44,9 +44,15 @@ class TransactionCard extends StatelessWidget {
         statusIcon = Icons.remove_circle_outline_rounded;
         statusText = 'Cancelled';
         break;
-      case PaymentStatus.pending:
+      case PaymentStatus.processing:
+      case PaymentStatus.pendingReconciliation:
         statusColor = AppTheme.accentAmber;
         statusIcon = Icons.timelapse_rounded;
+        statusText = 'Processing';
+        break;
+      default:
+        statusColor = AppTheme.accentAmber;
+        statusIcon = Icons.hourglass_empty_rounded;
         statusText = 'Pending';
         break;
     }

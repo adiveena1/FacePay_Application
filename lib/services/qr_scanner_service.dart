@@ -1,36 +1,44 @@
 import '../models/merchant.dart';
+import 'payment_validation_service.dart';
 
 class QRPaymentData {
   final Merchant merchant;
   final double? amount;
+  final String? currency;
   final String? note;
+  final String? transactionRef;
   final String rawData;
 
   const QRPaymentData({
     required this.merchant,
     this.amount,
+    this.currency = 'INR',
     this.note,
+    this.transactionRef,
     required this.rawData,
   });
 }
 
 class QRScannerService {
-  /// Parses standard UPI QR string or JSON QR string
-  /// Examples:
-  /// 1. upi://pay?pa=store@icici&pn=Campus%20Store&am=650.00&cu=INR&tn=Books
-  /// 2. {"merchantName": "Cafe Hub", "upiId": "cafe@paytm", "amount": 250.0}
-  /// 3. Plain text or simulated QR payloads
+  /// Parses standard UPI QR string or prototype QR string
+  /// Complies with Section 7 Screen 5 requirements:
+  /// pa: payee address
+  /// pn: payee name
+  /// am: amount
+  /// cu: currency
+  /// tn: transaction note
+  /// tr: transaction reference
   static QRPaymentData? parseQRCode(String? raw) {
     if (raw == null || raw.trim().isEmpty) return null;
 
     final trimmed = raw.trim();
 
-    // 1. Try standard UPI URI scheme
-    if (trimmed.startsWith('upi://pay')) {
+    // 1. Standard UPI URI scheme
+    if (trimmed.toLowerCase().startsWith('upi://pay')) {
       return _parseUpiUri(trimmed);
     }
 
-    // 2. Try simple comma/colon separated prototype string: "Campus Cafeteria,campus@upi,150.00"
+    // 2. Simple comma-separated prototype string: "Campus Cafeteria,campus@upi,150.00,Lunch"
     if (trimmed.contains(',')) {
       final parts = trimmed.split(',');
       if (parts.length >= 2) {
@@ -38,8 +46,11 @@ class QRScannerService {
         final upiId = parts[1].trim();
         double? amount;
         if (parts.length >= 3) {
-          amount = double.tryParse(parts[2].trim());
+          final val = PaymentValidationService.validateAmount(parts[2].trim());
+          if (val.isValid) amount = val.parsedAmount;
         }
+        final note = parts.length >= 4 ? parts[3].trim() : null;
+
         return QRPaymentData(
           merchant: Merchant(
             id: 'MERCH-${DateTime.now().millisecondsSinceEpoch % 10000}',
@@ -47,12 +58,13 @@ class QRScannerService {
             upiId: upiId.isNotEmpty ? upiId : 'merchant@upi',
           ),
           amount: amount,
+          note: note,
           rawData: trimmed,
         );
       }
     }
 
-    // 3. Fallback: Parse merchant name from plain text or code
+    // 3. Fallback: Parse merchant from raw text or store code
     return QRPaymentData(
       merchant: Merchant(
         id: 'MERCH-${DateTime.now().millisecondsSinceEpoch % 10000}',
@@ -72,10 +84,15 @@ class QRScannerService {
       final payeeName = params['pn'] != null ? Uri.decodeComponent(params['pn']!) : 'UPI Merchant';
       final payeeAddress = params['pa'] ?? 'payee@upi';
       final note = params['tn'] != null ? Uri.decodeComponent(params['tn']!) : null;
-      
+      final currency = params['cu'] ?? 'INR';
+      final transactionRef = params['tr'];
+
       double? amount;
       if (params['am'] != null) {
-        amount = double.tryParse(params['am']!);
+        final val = PaymentValidationService.validateAmount(params['am']!);
+        if (val.isValid) {
+          amount = val.parsedAmount;
+        }
       }
 
       return QRPaymentData(
@@ -86,7 +103,9 @@ class QRScannerService {
           category: 'Digital Merchant',
         ),
         amount: amount,
+        currency: currency,
         note: note,
+        transactionRef: transactionRef,
         rawData: uriString,
       );
     } catch (_) {
@@ -94,52 +113,52 @@ class QRScannerService {
     }
   }
 
-  /// Provides test demo QR codes for testing without physical scanning
+  /// Preset demonstration scenarios for evaluators without physical paper QR codes
   static List<QRPaymentData> getSampleTestQRCodes() {
     return [
       const QRPaymentData(
         merchant: Merchant(
-          id: 'M-CAFE-101',
+          id: 'MERCH-001',
           name: 'Campus Cafeteria',
-          upiId: 'cafeteria@sbi',
+          upiId: 'cafeteria@sharda.upi',
           category: 'Food & Dining',
         ),
-        amount: 250.00,
-        note: 'Lunch Combo (<= ₹500 - No Face Check)',
-        rawData: 'upi://pay?pa=cafeteria@sbi&pn=Campus%20Cafeteria&am=250.00&tn=Lunch%20Combo',
+        amount: 150.00,
+        note: 'Afternoon Snacks & Coffee',
+        rawData: 'upi://pay?pa=cafeteria@sharda.upi&pn=Campus%20Cafeteria&am=150.00&cu=INR&tn=Afternoon%20Snacks%20%26%20Coffee',
       ),
       const QRPaymentData(
         merchant: Merchant(
-          id: 'M-BOOK-202',
+          id: 'MERCH-002',
+          name: 'Tech World Electronics',
+          upiId: 'techworld@okhdfcbank',
+          category: 'Electronics Store',
+        ),
+        amount: 1200.00,
+        note: 'Wireless Keyboard & Mouse',
+        rawData: 'upi://pay?pa=techworld@okhdfcbank&pn=Tech%20World%20Electronics&am=1200.00&cu=INR&tn=Wireless%20Keyboard%20%26%20Mouse',
+      ),
+      const QRPaymentData(
+        merchant: Merchant(
+          id: 'MERCH-003',
           name: 'University Bookstore',
-          upiId: 'bookstore@hdfc',
-          category: 'Stationery & Books',
+          upiId: 'books@icici',
+          category: 'Education & Stationery',
         ),
-        amount: 500.00,
-        note: 'Semester Notebooks (= ₹500 Threshold Boundary)',
-        rawData: 'upi://pay?pa=bookstore@hdfc&pn=University%20Bookstore&am=500.00&tn=Semester%20Notebooks',
+        amount: 480.00,
+        note: 'PBL-3 Engineering Reference Guides',
+        rawData: 'upi://pay?pa=books@icici&pn=University%20Bookstore&am=480.00&cu=INR&tn=PBL-3%20Engineering%20Reference%20Guides',
       ),
       const QRPaymentData(
         merchant: Merchant(
-          id: 'M-TECH-303',
-          name: 'GadgetZone Tech Store',
-          upiId: 'gadgetzone@icici',
-          category: 'Electronics',
+          id: 'MERCH-004',
+          name: 'Global Cloud Systems',
+          upiId: 'billing@cloudsys.upi',
+          category: 'Cloud Services',
         ),
-        amount: 1499.00,
-        note: 'Wireless Headphones (> ₹500 - Mandatory Face Verification)',
-        rawData: 'upi://pay?pa=gadgetzone@icici&pn=GadgetZone%20Tech%20Store&am=1499.00&tn=Wireless%20Headphones',
-      ),
-      const QRPaymentData(
-        merchant: Merchant(
-          id: 'M-OPEN-404',
-          name: 'City Supermarket',
-          upiId: 'citysupermarket@axis',
-          category: 'Groceries',
-        ),
-        amount: null,
-        note: 'Open Amount (Enter manually on checkout)',
-        rawData: 'upi://pay?pa=citysupermarket@axis&pn=City%20Supermarket',
+        amount: 2500.00,
+        note: 'Annual Developer Cloud Subscription',
+        rawData: 'upi://pay?pa=billing@cloudsys.upi&pn=Global%20Cloud%20Systems&am=2500.00&cu=INR&tn=Annual%20Developer%20Cloud%20Subscription',
       ),
     ];
   }

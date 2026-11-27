@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -34,11 +35,49 @@ class _FaceVerificationScreenState extends State<FaceVerificationScreen> {
   int _currentAttempt = 1;
   LivenessState? _latestLivenessState;
   bool _hasTerminated = false;
+  Timer? _countdownTimer;
+  int _secondsRemaining = 15;
 
   @override
   void initState() {
     super.initState();
+    _startCountdownTimer();
     _initCamera();
+  }
+
+  void _startCountdownTimer() {
+    _countdownTimer?.cancel();
+    _secondsRemaining = 15;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || _hasTerminated) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+        } else {
+          timer.cancel();
+          _handleTimeout();
+        }
+      });
+    });
+  }
+
+  void _handleTimeout() {
+    if (_hasTerminated) return;
+    _hasTerminated = true;
+    _countdownTimer?.cancel();
+    _stopCameraStream();
+
+    final result = VerificationResult(
+      status: VerificationStatus.timeout,
+      message: 'Face verification challenge timed out (15s limit exceeded). Payment authorization cancelled.',
+      attemptsUsed: _currentAttempt,
+      timestamp: DateTime.now(),
+    );
+
+    Navigator.of(context).pop(result);
   }
 
   Future<void> _initCamera() async {
@@ -153,6 +192,7 @@ class _FaceVerificationScreenState extends State<FaceVerificationScreen> {
   void _completeVerificationSuccess() {
     if (_hasTerminated) return;
     _hasTerminated = true;
+    _countdownTimer?.cancel();
     _stopCameraStream();
 
     final result = VerificationResult(
@@ -174,8 +214,10 @@ class _FaceVerificationScreenState extends State<FaceVerificationScreen> {
         _livenessService.resetChallenge();
         _statusMessage = 'Attempt failed ($reason). Retrying attempt $_currentAttempt of ${AppConstants.maxVerificationAttempts}...';
       });
+      _startCountdownTimer();
     } else {
       _hasTerminated = true;
+      _countdownTimer?.cancel();
       _stopCameraStream();
       final result = VerificationResult(
         status: VerificationStatus.exhaustedAttempts,
@@ -197,6 +239,7 @@ class _FaceVerificationScreenState extends State<FaceVerificationScreen> {
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
     _stopCameraStream();
     _cameraController?.dispose();
     _faceDetectionService.dispose();
@@ -372,38 +415,115 @@ class _FaceVerificationScreenState extends State<FaceVerificationScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Attempt counter
-                  Text(
-                    'Attempt $_currentAttempt of ${AppConstants.maxVerificationAttempts}',
-                    style: const TextStyle(
-                      color: Colors.white38,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Fallback & Testing controls (PBL-3 presentation & emulator evaluation)
+                  // Attempt counter & Timeout Countdown
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: AppButton(
-                          label: 'Simulate Pass',
-                          icon: Icons.check_circle_outline,
-                          color: AppTheme.accent,
-                          onPressed: _completeVerificationSuccess,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white10,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Attempt $_currentAttempt of ${AppConstants.maxVerificationAttempts}',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: AppButton(
-                          label: 'Simulate Fail',
-                          icon: Icons.highlight_off,
-                          isOutlined: true,
-                          color: Colors.white70,
-                          onPressed: () => _failCurrentAttempt('Simulated challenge mismatch'),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _secondsRemaining <= 5 ? Colors.red.withAlpha(50) : Colors.amber.withAlpha(40),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _secondsRemaining <= 5 ? Colors.redAccent : Colors.amber,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.timer_outlined,
+                              size: 13,
+                              color: _secondsRemaining <= 5 ? Colors.redAccent : Colors.amber,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${_secondsRemaining}s',
+                              style: TextStyle(
+                                color: _secondsRemaining <= 5 ? Colors.redAccent : Colors.amber,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Evaluator / Testing Controls Section
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'DEMO / EVALUATION CONTROLS',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.amberAccent,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AppButton(
+                                label: 'Pass',
+                                icon: Icons.check_circle_outline,
+                                color: AppTheme.accent,
+                                onPressed: _completeVerificationSuccess,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: AppButton(
+                                label: 'Fail',
+                                icon: Icons.highlight_off,
+                                isOutlined: true,
+                                color: Colors.white70,
+                                onPressed: () => _failCurrentAttempt('Simulated challenge mismatch'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: AppButton(
+                                label: 'Timeout',
+                                icon: Icons.timer_off_outlined,
+                                isOutlined: true,
+                                color: Colors.amberAccent,
+                                onPressed: _handleTimeout,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

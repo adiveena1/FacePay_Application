@@ -55,6 +55,10 @@ class UserRewards {
   final List<BadgeItem> badges;
   final DateTime? lastPaymentDate;
 
+  int get totalFaceVerifiedTransactions => totalHighValueVerifiedPayments;
+  int get totalTransactions => totalSuccessfulPayments;
+  List<BadgeItem> get unlockedBadges => badges.where((b) => b.isUnlocked).toList();
+
   const UserRewards({
     this.currentStreak = 0,
     this.totalSuccessfulPayments = 0,
